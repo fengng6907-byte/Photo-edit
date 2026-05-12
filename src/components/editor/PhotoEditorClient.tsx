@@ -64,7 +64,7 @@ export function PhotoEditorClient() {
     contrast: 0,
     saturation: 0,
     temperature: 0,
-    sharpness: 0,
+    sharpen: 0,
     vignette: 0,
     grain: 0,
   });
@@ -220,7 +220,7 @@ export function PhotoEditorClient() {
                   <div className="flex items-center justify-between">
                     <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider">Adjustments</h3>
                     <button
-                      onClick={() => setSettings({ brightness: 0, contrast: 0, saturation: 0, temperature: 0, sharpness: 0, vignette: 0, grain: 0 })}
+                      onClick={() => setSettings({ brightness: 0, contrast: 0, saturation: 0, temperature: 0, sharpen: 0, vignette: 0, grain: 0 })}
                       className="text-xs text-white/30 hover:text-white flex items-center gap-1"
                     >
                       <RotateCcw size={11} /> Reset
@@ -233,7 +233,7 @@ export function PhotoEditorClient() {
                     { key: "temperature", label: "Temperature", min: -100, max: 100 },
                     { key: "highlights", label: "Highlights", min: -100, max: 100 },
                     { key: "shadows", label: "Shadows", min: -100, max: 100 },
-                    { key: "sharpness", label: "Sharpness", min: 0, max: 100 },
+                    { key: "sharpen", label: "Sharpness", min: 0, max: 100 },
                     { key: "vignette", label: "Vignette", min: 0, max: 100 },
                     { key: "grain", label: "Grain", min: 0, max: 100 },
                   ].map((ctrl) => (
@@ -389,7 +389,7 @@ function buildCSSFilter(settings: FilterSettings): string {
   if (settings.brightness) filters.push(`brightness(${1 + settings.brightness / 100})`);
   if (settings.contrast) filters.push(`contrast(${1 + settings.contrast / 100})`);
   if (settings.saturation) filters.push(`saturate(${1 + settings.saturation / 100})`);
-  if (settings.sharpness && settings.sharpness > 0) filters.push(`contrast(${1 + settings.sharpness / 200})`);
+  if (settings.sharpen && settings.sharpen > 0) filters.push(`contrast(${1 + settings.sharpen / 200})`);
   if (settings.grain && settings.grain > 0) filters.push(`brightness(${1 - settings.grain / 500})`);
   return filters.join(" ");
 }
