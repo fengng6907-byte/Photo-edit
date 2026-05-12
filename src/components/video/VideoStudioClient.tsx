@@ -257,7 +257,7 @@ export function VideoStudioClient() {
               <Badge variant="default">{formatBytes(file.size)}</Badge>
             )}
             {duration > 0 && (
-              <Badge variant="blue" icon={<Clock size={10} />}>{formatDuration(duration)}</Badge>
+              <Badge variant="blue"><Clock size={10} className="inline mr-1" />{formatDuration(duration)}</Badge>
             )}
           </div>
           <div className="flex items-center gap-2">

@@ -58,7 +58,7 @@ export default async function ProfilePage() {
                 <div className="flex flex-wrap gap-6 text-sm">
                   <div className="flex items-center gap-2 text-white/40">
                     <Calendar size={13} />
-                    <span>Joined {formatDate(user.created_at ?? new Date().toISOString())}</span>
+                    <span>Joined {formatDate((user as { created_at?: string }).created_at ?? new Date().toISOString())}</span>
                   </div>
                   <div className="flex items-center gap-2 text-white/40">
                     <Zap size={13} className="text-brand-400" />
