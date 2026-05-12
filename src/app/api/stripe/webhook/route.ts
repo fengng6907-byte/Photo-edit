@@ -1,11 +1,11 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import Stripe from "stripe";
+import { getStripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/server";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-02-24.acacia",
-});
 
 const TIER_CREDITS: Record<string, number> = {
   creator: 100,
@@ -27,9 +27,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing stripe-signature" }, { status: 400 });
   }
 
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: "Webhook secret not configured" }, { status: 500 });
+  }
+
+  const stripe = getStripe();
+
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
@@ -43,7 +49,6 @@ export async function POST(request: NextRequest) {
       const customerId = sub.customer as string;
       const priceId = sub.items.data[0]?.price?.id;
 
-      // Determine tier from price ID
       const tier = determineTier(priceId);
       if (!tier) break;
 
@@ -108,7 +113,6 @@ export async function POST(request: NextRequest) {
 
       if (!user) break;
 
-      // Refresh monthly credits on successful payment
       const tier = user.subscription_tier ?? "free";
       if (tier !== "free") {
         await supabase.from("users").update({

@@ -1,11 +1,10 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 import { createClient } from "@/lib/supabase/server";
+import { getStripe } from "@/lib/stripe";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import Stripe from "stripe";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-02-24.acacia",
-});
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,11 +15,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { priceId, billingCycle } = await request.json();
+    const { priceId } = await request.json();
 
     if (!priceId) {
       return NextResponse.json({ error: "Price ID required" }, { status: 400 });
     }
+
+    const stripe = getStripe();
 
     const { data: profile } = await supabase
       .from("users")
@@ -42,12 +43,14 @@ export async function POST(request: NextRequest) {
         .eq("id", user.id);
     }
 
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/billing?canceled=true`,
+      success_url: `${appUrl}/billing?success=true`,
+      cancel_url: `${appUrl}/billing?canceled=true`,
       subscription_data: {
         metadata: { supabase_user_id: user.id },
       },
@@ -55,7 +58,8 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ sessionUrl: session.url });
-  } catch {
-    return NextResponse.json({ error: "Failed to create checkout session" }, { status: 500 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to create checkout session";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
