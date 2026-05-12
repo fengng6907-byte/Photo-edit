@@ -60,7 +60,7 @@ export function Modal({ isOpen, onClose, title, description, children, size = "m
           className
         )}
       >
-        {(title || onClose) && (
+        {title && (
           <div className="flex items-start justify-between px-6 py-4 border-b border-white/10">
             <div>
               {title && <h2 className="text-lg font-semibold text-white">{title}</h2>}
