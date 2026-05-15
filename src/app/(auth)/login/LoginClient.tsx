@@ -6,12 +6,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { createClient } from "@/lib/supabase/client";
-import { Sparkles, Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { Camera, Mail, Lock, Eye, EyeOff, AlertCircle, Zap } from "lucide-react";
 
 export function LoginClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/dashboard";
+  const redirectTo = searchParams.get("redirectTo") ?? "/studio";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +26,6 @@ export function LoginClient() {
     e.preventDefault();
     setLoading(true);
     setError("");
-
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setError(error.message);
@@ -52,50 +51,53 @@ export function LoginClient() {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left panel - decorative */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-[#08061f] items-center justify-center overflow-hidden">
-        <div className="orb orb-purple absolute -top-40 -left-40 w-[500px] h-[500px] opacity-50" />
-        <div className="orb orb-blue absolute -bottom-40 -right-40 w-[400px] h-[400px] opacity-40" />
+    <div className="min-h-screen flex bg-[#0d0d0d]">
+      {/* Left panel — decorative */}
+      <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center overflow-hidden bg-[#0a0a0a]">
+        <div className="orb orb-crimson absolute -top-40 left-1/2 -translate-x-1/2 w-[500px] h-[500px] opacity-30" />
+        <div className="orb orb-dark-crimson absolute bottom-0 right-0 w-[350px] h-[350px] opacity-25" />
+        <div className="absolute inset-0 bg-grid opacity-30" />
+
         <div className="relative z-10 text-center px-12">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-brand-600 to-brand-400 flex items-center justify-center shadow-glow mx-auto mb-8">
-            <Sparkles size={36} className="text-white" />
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-glow mx-auto mb-8">
+            <Camera size={36} className="text-white" />
           </div>
-          <h1 className="text-4xl font-black text-white mb-4">PrismFlow AI</h1>
-          <p className="text-white/50 text-lg max-w-sm">
-            Transform your creative vision with the power of AI.
+          <h1 className="text-4xl font-black text-white mb-3 tracking-tight">VibeLens</h1>
+          <p className="text-white/40 text-lg max-w-xs">
+            Film the vibe. AI does the rest.
           </p>
+
           <div className="mt-12 grid grid-cols-2 gap-4">
             {[
-              { value: "50K+", label: "Creators" },
-              { value: "10M+", label: "Edits" },
-              { value: "100+", label: "Filters" },
-              { value: "4K", label: "Resolution" },
+              { value: "10K+", label: "Photos styled" },
+              { value: "2", label: "Film modes" },
+              { value: "10", label: "Free credits" },
+              { value: "1 click", label: "Transform" },
             ].map((s) => (
               <div key={s.label} className="glass rounded-xl p-4 text-center">
-                <div className="text-2xl font-black gradient-text">{s.value}</div>
-                <div className="text-xs text-white/40 mt-1">{s.label}</div>
+                <div className="text-2xl font-black gradient-text-crimson">{s.value}</div>
+                <div className="text-xs text-white/35 mt-1">{s.label}</div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Right panel - form */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-[#0a0828]">
+      {/* Right panel — form */}
+      <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-400 flex items-center justify-center">
-              <Sparkles size={15} className="text-white" />
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
+              <Camera size={15} className="text-white" />
             </div>
-            <span className="font-bold gradient-text">PrismFlow AI</span>
+            <span className="font-bold gradient-text-crimson">VibeLens</span>
           </div>
 
           <h2 className="text-2xl font-bold text-white mb-1">Welcome back</h2>
-          <p className="text-white/40 text-sm mb-8">Sign in to your account to continue</p>
+          <p className="text-white/35 text-sm mb-8">Sign in to access your studio</p>
 
           {error && (
-            <div className="flex items-start gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 mb-6">
+            <div className="flex items-start gap-2 p-3 rounded-xl bg-red-500/8 border border-red-500/18 mb-6">
               <AlertCircle size={16} className="text-red-400 mt-0.5 shrink-0" />
               <p className="text-sm text-red-400">{error}</p>
             </div>
@@ -104,7 +106,7 @@ export function LoginClient() {
           {/* Google OAuth */}
           <Button
             variant="glass"
-            className="w-full mb-6"
+            className="w-full mb-5"
             size="lg"
             loading={googleLoading}
             onClick={handleGoogleLogin}
@@ -120,12 +122,12 @@ export function LoginClient() {
             Continue with Google
           </Button>
 
-          <div className="relative mb-6">
+          <div className="relative mb-5">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10" />
+              <div className="w-full border-t border-white/8" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-3 bg-[#0a0828] text-white/30">or continue with email</span>
+              <span className="px-3 bg-[#0d0d0d] text-white/25">or continue with email</span>
             </div>
           </div>
 
@@ -142,13 +144,13 @@ export function LoginClient() {
             />
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-white/70">Password</label>
-                <Link href="/reset-password" className="text-xs text-brand-400 hover:text-brand-300">
+                <label className="text-sm font-medium text-white/60">Password</label>
+                <Link href="/reset-password" className="text-xs text-brand-400 hover:text-brand-300 transition-colors">
                   Forgot password?
                 </Link>
               </div>
               <div className="relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30">
                   <Lock size={15} />
                 </div>
                 <input
@@ -156,14 +158,14 @@ export function LoginClient() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-white placeholder:text-white/30 focus:outline-none focus:border-brand-500/60 transition-all duration-200 text-sm"
+                  className="w-full bg-white/4 border border-white/8 rounded-xl pl-10 pr-10 py-2.5 text-white placeholder:text-white/25 focus:outline-none focus:border-brand-500/50 transition-all duration-200 text-sm"
                   required
                   autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
                 >
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
@@ -175,10 +177,10 @@ export function LoginClient() {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-white/40">
-            Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-brand-400 hover:text-brand-300 font-medium">
-              Sign up free
+          <p className="mt-6 text-center text-sm text-white/35">
+            New here?{" "}
+            <Link href="/register" className="text-brand-400 hover:text-brand-300 font-medium transition-colors">
+              Get 10 free credits
             </Link>
           </p>
         </div>

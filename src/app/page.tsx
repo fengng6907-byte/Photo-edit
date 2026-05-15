@@ -1,16 +1,14 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/landing/HeroSection";
-import { FeaturesSection } from "@/components/landing/FeaturesSection";
-import { PricingSection } from "@/components/landing/PricingSection";
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
-import { CTASection } from "@/components/landing/CTASection";
+import { VibeGallery } from "@/components/landing/VibeGallery";
+import { StudioSection } from "@/components/landing/StudioSection";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "PrismFlow AI — AI-Powered Photo & Video Editor",
+  title: "VibeLens — Film the Vibe. AI Does the Rest.",
   description:
-    "Transform photos and videos with professional AI. Background removal, upscaling, cinematic filters, and more. Start free.",
+    "Transform your photos with Fujifilm and CCD analog AI styles. One click. Instant film vibes. 10 free credits on signup.",
 };
 
 export default function HomePage() {
@@ -19,10 +17,10 @@ export default function HomePage() {
       <Navbar />
       <main>
         <HeroSection />
-        <FeaturesSection />
-        <TestimonialsSection />
-        <PricingSection />
-        <CTASection />
+        <div id="vibe-gallery">
+          <VibeGallery />
+        </div>
+        <StudioSection />
       </main>
       <Footer />
     </>
