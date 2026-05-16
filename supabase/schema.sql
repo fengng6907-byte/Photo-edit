@@ -1,5 +1,5 @@
 -- ================================================================
--- PrismFlow AI — Supabase PostgreSQL Schema
+-- VibeLens — Supabase PostgreSQL Schema
 -- Run this in your Supabase SQL Editor to initialize the database
 -- ================================================================
 
@@ -8,7 +8,103 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ================================================================
--- USERS TABLE
+-- PROFILES TABLE (VibeLens core — credit tracking)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  username TEXT UNIQUE,
+  full_name TEXT,
+  avatar_url TEXT,
+  credits INTEGER NOT NULL DEFAULT 10,
+  total_transformations INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ================================================================
+-- TRANSFORMATIONS TABLE (VibeLens — per-transform record)
+-- ================================================================
+CREATE TABLE IF NOT EXISTS public.transformations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  original_url TEXT NOT NULL,
+  transformed_url TEXT,
+  style TEXT NOT NULL DEFAULT 'fujifilm' CHECK (style IN ('fujifilm', 'ccd')),
+  prompt TEXT,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
+  credits_used INTEGER NOT NULL DEFAULT 1,
+  fal_request_id TEXT,
+  error TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Indexes for transformations
+CREATE INDEX IF NOT EXISTS idx_transformations_user_id ON public.transformations(user_id);
+CREATE INDEX IF NOT EXISTS idx_transformations_created_at ON public.transformations(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_transformations_status ON public.transformations(status);
+
+-- RLS for profiles
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "profiles_select_own" ON public.profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "profiles_update_own" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+
+-- RLS for transformations
+ALTER TABLE public.transformations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "transformations_all_own" ON public.transformations FOR ALL USING (auth.uid() = user_id);
+
+-- Auto-create profile on signup
+CREATE OR REPLACE FUNCTION public.handle_new_profile()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, avatar_url)
+  VALUES (
+    NEW.id,
+    NEW.raw_user_meta_data->>'full_name',
+    NEW.raw_user_meta_data->>'avatar_url'
+  )
+  ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_auth_user_created_profile
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_profile();
+
+-- Credit-safe deduction function (atomic, prevents going below 0)
+CREATE OR REPLACE FUNCTION public.deduct_credit(p_user_id UUID)
+RETURNS BOOLEAN AS $$
+DECLARE
+  rows_updated INTEGER;
+BEGIN
+  UPDATE public.profiles
+  SET
+    credits = credits - 1,
+    total_transformations = total_transformations + 1,
+    updated_at = NOW()
+  WHERE id = p_user_id AND credits > 0;
+
+  GET DIAGNOSTICS rows_updated = ROW_COUNT;
+  RETURN rows_updated > 0;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Refund credit (used when Fal.ai transform fails)
+CREATE OR REPLACE FUNCTION public.refund_credit(p_user_id UUID)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE public.profiles
+  SET
+    credits = credits + 1,
+    total_transformations = GREATEST(total_transformations - 1, 0),
+    updated_at = NOW()
+  WHERE id = p_user_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ================================================================
+-- USERS TABLE (legacy / extended profile)
 -- ================================================================
 CREATE TABLE IF NOT EXISTS public.users (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,

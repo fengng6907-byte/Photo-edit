@@ -3,45 +3,44 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "PrismFlow AI — AI-Powered Photo & Video Editor",
-    template: "%s | PrismFlow AI",
+    default: "VibeLens — Film the Vibe. AI Does the Rest.",
+    template: "%s | VibeLens",
   },
   description:
-    "Transform your photos and videos with cutting-edge AI. Professional cinematic filters, AI enhancement, background removal, upscaling, and more.",
+    "Transform your photos with Fujifilm and CCD analog AI styles. One click. Instant film vibes.",
   keywords: [
     "AI photo editor",
-    "AI video editor",
-    "cinematic filters",
-    "background removal",
-    "image upscaling",
-    "video enhancement",
-    "photo editing",
-    "PrismFlow AI",
+    "Fujifilm filter",
+    "CCD aesthetic",
+    "analog photo AI",
+    "film photography AI",
+    "photo style transfer",
+    "VibeLens",
   ],
-  authors: [{ name: "PrismFlow AI" }],
-  creator: "PrismFlow AI",
+  authors: [{ name: "VibeLens" }],
+  creator: "VibeLens",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: process.env.NEXT_PUBLIC_APP_URL,
-    title: "PrismFlow AI — AI-Powered Photo & Video Editor",
+    title: "VibeLens — Film the Vibe. AI Does the Rest.",
     description:
-      "Transform your photos and videos with cutting-edge AI technology.",
-    siteName: "PrismFlow AI",
+      "Transform your photos with Fujifilm and CCD analog AI styles.",
+    siteName: "VibeLens",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "PrismFlow AI",
+        alt: "VibeLens",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "PrismFlow AI — AI-Powered Photo & Video Editor",
+    title: "VibeLens — Film the Vibe. AI Does the Rest.",
     description:
-      "Transform your photos and videos with cutting-edge AI technology.",
+      "Transform your photos with Fujifilm and CCD analog AI styles.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -64,7 +63,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0828",
+  themeColor: "#0d0d0d",
   width: "device-width",
   initialScale: 1,
 };
@@ -84,7 +83,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen bg-[#0a0828] text-white antialiased">
+      <body className="min-h-screen bg-[#0d0d0d] text-white antialiased">
         {children}
       </body>
     </html>
